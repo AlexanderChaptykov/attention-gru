@@ -4,15 +4,21 @@ import re
 import unicodedata
 from io import open
 
-MAX_LENGTH = 9
+from seq2seq_attn.constants import MAX_LENGTH
 
 eng_prefixes = (
-    "i am ", "i m ",
-    "he is", "he s ",
-    "she is", "she s ",
-    "you are", "you re ",
-    "we are", "we re ",
-    "they are", "they re "
+    "i am ",
+    "i m ",
+    "he is",
+    "he s ",
+    "she is",
+    "she s ",
+    "you are",
+    "you re ",
+    "we are",
+    "we re ",
+    "they are",
+    "they re ",
 )
 
 
@@ -25,7 +31,7 @@ class Lang:
         self.n_words = 2  # Count SOS and EOS
 
     def addSentence(self, sentence):
-        for word in sentence.split(' '):
+        for word in sentence.split(" "):
             self.addWord(word)
 
     def addWord(self, word):
@@ -39,9 +45,8 @@ class Lang:
 
 
 def unicodeToAscii(s):
-    return ''.join(
-        c for c in unicodedata.normalize('NFD', s)
-        if unicodedata.category(c) != 'Mn'
+    return "".join(
+        c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn"
     )
 
 
@@ -56,11 +61,15 @@ def readLangs(lang1, lang2, reverse=False):
     print("Reading lines...")
 
     # Read the file and split into lines
-    lines = open('data/%s-%s.txt' % (lang1, lang2), encoding='utf-8'). \
-        read().strip().split('\n')
+    lines = (
+        open("data/%s-%s.txt" % (lang1, lang2), encoding="utf-8")
+        .read()
+        .strip()
+        .split("\n")
+    )
 
     # Split every line into pairs and normalize
-    pairs = [[normalizeString(s) for s in line.split('\t')] for line in lines]
+    pairs = [[normalizeString(s) for s in line.split("\t")] for line in lines]
 
     # Reverse pairs, make Lang instances
     if reverse:
@@ -75,20 +84,21 @@ def readLangs(lang1, lang2, reverse=False):
 
 
 def filterPair(p):
-    return len(p[0].split(' ')) < MAX_LENGTH and \
-           len(p[1].split(' ')) < MAX_LENGTH and \
-           p[1].startswith(eng_prefixes)
+    return (
+        len(p[0].split(" ")) < MAX_LENGTH
+        and len(p[1].split(" ")) < MAX_LENGTH
+        and p[1].startswith(eng_prefixes)
+    )
 
 
 def filterPairs(pairs):
     return [pair for pair in pairs if filterPair(pair)]
 
 
-def prepareData(lang1, lang2, reverse=False, filter=True):
+def prepareData(lang1, lang2, reverse=True):
     input_lang, output_lang, pairs = readLangs(lang1, lang2, reverse)
     print("Read %s sentence pairs" % len(pairs))
-    if filter:
-        pairs = filterPairs(pairs)
+    pairs = filterPairs(pairs)
     print("Trimmed to %s sentence pairs" % len(pairs))
     print("Counting words...")
     for pair in pairs:

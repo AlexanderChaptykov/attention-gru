@@ -10,7 +10,7 @@ EOS_token = 1
 
 
 def indexesFromSentence(lang, sentence):
-    return [lang.word2index[word] for word in sentence.split(' ')]
+    return [lang.word2index[word] for word in sentence.split(" ")]
 
 
 def tensorFromSentence(lang, sentence):
@@ -33,7 +33,9 @@ class TwoLangs:
 
 class CustomDs(Dataset):
     def __init__(self, input_lang, output_lang, pairs):
-        self.training_pairs = [tensorsFromPair(input_lang, output_lang, pair) for pair in pairs]
+        self.training_pairs = [
+            tensorsFromPair(input_lang, output_lang, pair) for pair in pairs
+        ]
 
     def __len__(self):
         return len(self.training_pairs)

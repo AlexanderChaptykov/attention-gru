@@ -11,7 +11,13 @@ class EncoderRNN(nn.Module):
     def __init__(self, vocab_size, hidden_size, num_layers=2, bidirect=False):
         super().__init__()
         self.embedding = nn.Embedding(vocab_size, hidden_size)
-        self.gru = nn.GRU(hidden_size, hidden_size, num_layers=num_layers, batch_first=True, bidirectional=bidirect)
+        self.gru = nn.GRU(
+            hidden_size,
+            hidden_size,
+            num_layers=num_layers,
+            batch_first=True,
+            bidirectional=bidirect,
+        )
 
     def forward(self, input):
         """
@@ -30,13 +36,13 @@ class EncoderRNN(nn.Module):
 
     def init_hidden(self, bs):
         bid_coef = 2 if self.gru.bidirectional else 1
-        return torch.zeros(bid_coef * self.gru.num_layers, bs, self.gru.hidden_size, device=device)
+        return torch.zeros(
+            bid_coef * self.gru.num_layers, bs, self.gru.hidden_size, device=device
+        )
 
 
 class Attention(nn.Module):
-    def __init__(
-            self, hidden_size, max_length=MAX_LENGTH, bidirect=False
-    ):
+    def __init__(self, hidden_size, max_length=MAX_LENGTH, bidirect=False):
         super().__init__()
         torch.manual_seed(0)
         bid_coef = 3 if bidirect else 2
@@ -53,7 +59,9 @@ class Attention(nn.Module):
 
         attn_weights = F.softmax(
             self.attn(torch.cat((embedded_input, hidden), -1)), dim=1
-        ).unsqueeze(1)  # we concat trough -1 axis, to expand embeding dim
+        ).unsqueeze(
+            1
+        )  # we concat trough -1 axis, to expand embeding dim
 
         # (b×n×m)  and (b×m×p)
         # задача сделать выжимку из того что есть в енкодер аутпуте для каждого слова
@@ -81,7 +89,13 @@ class Attention(nn.Module):
 
 class AttnDecoderRNN(nn.Module):
     def __init__(
-            self, hidden_size, vocab_size, num_layers=1, dropout_p=0.1, max_length=MAX_LENGTH, bidirect=False
+        self,
+        hidden_size,
+        vocab_size,
+        num_layers=1,
+        dropout_p=0.1,
+        max_length=MAX_LENGTH,
+        bidirect=False,
     ):
         super().__init__()
 
@@ -89,7 +103,13 @@ class AttnDecoderRNN(nn.Module):
         torch.manual_seed(0)
         self.dropout = nn.Dropout(dropout_p)
         torch.manual_seed(0)
-        self.gru = nn.GRU(hidden_size, hidden_size, num_layers, batch_first=True, bidirectional=bidirect)
+        self.gru = nn.GRU(
+            hidden_size,
+            hidden_size,
+            num_layers,
+            batch_first=True,
+            bidirectional=bidirect,
+        )
 
         torch.manual_seed(0)
         self.attention = Attention(hidden_size, max_length, bidirect=bidirect)
@@ -141,14 +161,15 @@ def inference(batch, encoder, decoder, output_lang, max_length=MAX_LENGTH):
 
         for di in range(max_length):
             decoder_output, decoder_hidden, decoder_attention = decoder(
-                decoder_input, decoder_hidden, encoder_outputs)
+                decoder_input, decoder_hidden, encoder_outputs
+            )
             decoder_attentions[di] = decoder_attention.data
             topv, topi = decoder_output.data.topk(1)
             if topi.item() == EOS_token:
-                decoded_words.append('<EOS>')
+                decoded_words.append("<EOS>")
                 break
             else:
                 decoded_words.append(output_lang.index2word[topi.item()])
 
             decoder_input = topi.squeeze().detach().unsqueeze(0).unsqueeze(0)
-    return decoded_words, decoder_attentions[:di + 1]
+    return decoded_words, decoder_attentions[: di + 1]
