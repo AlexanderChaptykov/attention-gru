@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "attn-gru-pytorch"
+version = "0.1.0"
+description = ""
+authors = ["AlexanderChaptykov <123diz321@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+torch = "^1.13.1"
+torchvision = "^0.14.1"
+matplotlib = "^3.6.3"
+flake8 = "^6.0.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
