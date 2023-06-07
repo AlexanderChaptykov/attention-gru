@@ -1,11 +1,13 @@
+import fire
+
 from seq2seq_attn.constants import device
 from seq2seq_attn.data_prep import prepareData
 from seq2seq_attn.eval import evaluateRandomly
 from seq2seq_attn.models import AttnDecoderRNN, EncoderRNN
 from seq2seq_attn.train import train
 
-if __name__ == "__main__":
-    input_lang, output_lang, pairs = prepareData("eng", "fra", True)
+def main(debug=False):
+    input_lang, output_lang, pairs = prepareData("eng", "fra", True, debug)
 
     hidden_size = 256
     bidirect = True
@@ -34,3 +36,6 @@ if __name__ == "__main__":
     # evaluateAndShowAttention(input_lang, output_lang, encoder, decoder, pairs[18], "epoch_!.png")
 
     evaluateRandomly(input_lang, output_lang, pairs, encoder, decoder, n=1)
+
+if __name__ == "__main__":
+    fire.Fire(main)

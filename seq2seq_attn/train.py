@@ -21,14 +21,14 @@ plt.switch_backend("agg")
 
 
 def teacher_force(
-    batch, decoder, decoder_input, decoder_hidden, encoder_outputs, criterion
+    batch, decoder: AttnDecoderRNN, decoder_input, decoder_hidden, encoder_outputs, criterion
 ):
     loss = 0
     for di in range(batch.dec.shape[1] - 1):
         decoder_output, decoder_hidden, attn_weights = decoder(
             decoder_input, decoder_hidden, encoder_outputs
         )
-        decoder_input = batch.dec[:, di : di + 1]  # Teacher forcing
+        decoder_input = batch.dec[:, di: di + 1]  # Teacher forcing
         loss += criterion(decoder_output, batch.dec[:, di])
     return loss
 

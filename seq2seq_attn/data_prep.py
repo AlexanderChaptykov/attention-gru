@@ -57,7 +57,7 @@ def normalizeString(s):
     return s
 
 
-def readLangs(lang1, lang2, reverse=False):
+def readLangs(lang1, lang2, reverse=False, debug=False):
     print("Reading lines...")
 
     # Read the file and split into lines
@@ -69,6 +69,9 @@ def readLangs(lang1, lang2, reverse=False):
     )
 
     # Split every line into pairs and normalize
+    if debug:
+        lines = lines[:100]
+
     pairs = [[normalizeString(s) for s in line.split("\t")] for line in lines]
 
     # Reverse pairs, make Lang instances
@@ -95,8 +98,8 @@ def filterPairs(pairs):
     return [pair for pair in pairs if filterPair(pair)]
 
 
-def prepareData(lang1, lang2, reverse=True):
-    input_lang, output_lang, pairs = readLangs(lang1, lang2, reverse)
+def prepareData(lang1, lang2, reverse=True, debug=False):
+    input_lang, output_lang, pairs = readLangs(lang1, lang2, reverse, debug)
     print("Read %s sentence pairs" % len(pairs))
     pairs = filterPairs(pairs)
     print("Trimmed to %s sentence pairs" % len(pairs))
